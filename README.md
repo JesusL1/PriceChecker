@@ -50,7 +50,7 @@ receiver_emailUsername = 'will@example.com'  # The email address that will recei
 ### After adding our items... our Excel sheet looks like this: 
 ![](images/I7GeK0V4Ga.png)
 
-### Let's check the prices for these items:
+### Let's check if there's a deal for any of these items:
 ![](images/python_66evVuFwxC.png)
 
 ### Looks like there's a sale!
