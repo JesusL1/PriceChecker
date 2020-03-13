@@ -14,10 +14,12 @@ Currently the following websites that are supported are:
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the following:
 
 ```bash
-pip install beautifulsoup4          
-pip install requests
-pip install openpyxl
+pip install beautifulsoup4
 pip install lxml
+pip install requests
+pip install tldextract
+pip install openpyxl
+
 ```
 
 
