@@ -4,30 +4,20 @@ from tkinter import font
 import re
 import PriceChecker as PC
 
+
 HEIGHT = 350
 WIDTH = 850
 root = tk.Tk()
 root.title('PRICE CHECKER APPLICATION - J')
-websiteList = ['93Brand', 'Adidas', 'BananaRepublic', 'FightersMarket', 'Microcenter']  # list of websites displayed in the combobox
 
-def AddProduct(websiteLink, productPrice, websiteName):
-    """ Adds a product to the excel sheet once the arguemnts have been validated.
+def AddProduct(webLink, productPrice):
+    """ Adds a product to the excel sheet once the arguments have been validated.
     Parses the website based on the arguments passed.
     """
     websiteLink_entry.delete(0,'end')  # clears the website entry field
     price_entry.delete(0, 'end')  # clears the price entry field
     productPrice = float(productPrice)
-
-    if websiteName == '93Brand':
-        PC.Parse_93Brand(websiteLink, productPrice)
-    elif websiteName == 'Adidas':
-        PC.Parse_Adidas(websiteLink, productPrice)
-    elif websiteName == 'BananaRepublic':
-        PC.Parse_BananaRepublic(websiteLink, productPrice)
-    elif websiteName == 'FightersMarket':
-        PC.Parse_FightersMarket(websiteLink, productPrice)
-    elif websiteName == 'Microcenter':
-        PC.Parse_Microcenter(websiteLink, productPrice)
+    PC.ValidateWebsite(webLink, productPrice, 'Add')
 
 def InsertText(result, color):
     """ Inserts text to the tkinter GUI and color-codes it based on color variable
@@ -35,6 +25,7 @@ def InsertText(result, color):
         result: text that will be inserted
         color: the background color of the text
     """
+    print(result)
     output_text.insert(tk.END, '\n')
     if color == 0:
         output_text.insert(tk.END, result)
@@ -45,7 +36,7 @@ def InsertText(result, color):
         output_text.tag_config('equalPrice', background='yellow')
         output_text.insert(tk.END, result, 'equalPrice')
     elif color == 3:
-        output_text.tag_config('betterPrice', background='#4dff4d', font='Helvetica 12 bold')
+        output_text.tag_config('betterPrice', background='#4dff4d', font='Helvetica 11 bold')
         output_text.insert(tk.END, result, 'betterPrice')
     elif color == 4:
         output_text.tag_config('newItem', background='#00cc66', underline=1)
@@ -78,9 +69,7 @@ def CheckIfPrice(productPrice):
     Returns: 
         True if valid price, false otherwise
     """
-    if productPrice == "":  # user must enter a product price, can't leave an empty string.
-        return False
-    elif float(productPrice) <= 0.02:  # item must be worth at least $0.02 to be considered a valid price
+    if productPrice == "" or float(productPrice) <= 0.02:  # user must enter a product price (can't be an empty string), price must be worth at least $0.02 to be considered a valid price
         return False
     else:
         return True
@@ -130,7 +119,6 @@ def PriceValidate(action, index, value_if_allowed, prior_value, text, validation
             price_entry.bell()
             return False
 
-
 """ Creates a canvas and a frame inside the canvas """
 canvas = tk.Canvas(root, height=HEIGHT, width=WIDTH)
 canvas.pack()
@@ -147,10 +135,8 @@ price_entered.trace("w", Validator)
 """ Creates labels for user to know where to enter the proper information """
 websiteLink_label = tk.Label(frame,text='Enter Product Website Link:', bg='#EDD4CE', font='Helvetica 16 bold')
 websiteLink_label.place(relx=0.01, rely=0.05, relheight=0.08)
-price_label = tk.Label(frame,text='Enter Product Price: $', bg='#EDD4CE', font='Helvetica 16 bold')
+price_label = tk.Label(frame,text='Enter Alert Price: $', bg='#EDD4CE', font='Helvetica 16 bold')
 price_label.place(relx=0.01,rely=0.35, relheight=0.08)
-websiteName_label = tk.Label(frame, text='Select Product Website:', bg='#EDD4CE', font='Helvetica 16 bold')
-websiteName_label.place(relx=0.01, rely=0.55, relheight=0.08)
 
 """ Creates entries for user input. 
 The price entry is validated interactively which restricts the user from entering an invalid key stroke. 
@@ -159,7 +145,7 @@ websiteLink_entry = tk.Entry(frame, bg='white', font=12, textvariable=websiteLin
 websiteLink_entry.place(relx=0.01,rely=0.15, relwidth=0.75, relheight=0.08)
 price_validate_helper = (frame.register(PriceValidate), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 price_entry = tk.Entry(frame, validate="key", validatecommand=price_validate_helper, textvariable=price_entered, font='Helvetica 18')
-price_entry.place(relx=0.27, rely=0.35, relwidth=0.25, relheight=0.08)
+price_entry.place(relx=0.23, rely=0.35, relwidth=0.25, relheight=0.08)
 
 """ Creates labels for valid/invalid entries. Invalid labels are placed by default. """
 valid_websiteLink_label = tk.Label(frame,text='VALID WEBSITE', bg='#66ff66', font='Helvetica 10 bold')
@@ -169,30 +155,19 @@ invalid_websiteLink_label.place(relx=0.76,rely=0.15, relheight=0.08)
 invalid_price_label = tk.Label(frame,text='INVALID PRICE', bg='#ff3333', font='Helvetica 10 bold')
 invalid_price_label.place(relx=0.48,rely=0.35, relheight=0.08)
 
-""" Creates a combobox that holds the list of websites """
-dropMenu = ttk.Combobox(frame, state='readonly', values=websiteList, font='Helvetica 14')
-dropMenu.place(relx=0.31, rely=0.55, relwidth=0.25, relheight=0.08)
-dropMenu.current(0)  # Selects first value by default
-
-""" Changes the font size of the content inside the ComboBox. Note that it will change the font of all Listbox widgets
-that are part of a ttk Combobox and that are created after calling this. This was the best workaround I can find so
-I can change the font size of the values of the Combobox. Source: https://stackoverflow.com/questions/28938758/combobox-fontsize-in-tkinter/28940421 """
-bigfont = font.Font(family="Helvetica",size=14)
-root.option_add("*TCombobox*Listbox*Font", bigfont) 
-
-""" Creates a button that is disabled by default. When it's enabled and clicked, it will call selection() with the appropriate arguments """
-add_button = tk.Button(frame, text='ADD A PRODUCT', bg='#4CAF50', borderwidth='3', font='Helvetica 12 bold', 
-    cursor='hand2', state='disabled', command= lambda: AddProduct(websiteLink_entered.get(), price_entered.get(), dropMenu.get()))
-add_button.place(relx=0.30, rely=0.8, relwidth=0.165, relheight=0.15)
+""" Creates a button that is disabled by default. When it's enabled and clicked, it will call AddProduct() with the appropriate arguments """
+add_button = tk.Button( frame, text='ADD A PRODUCT', bg='#4CAF50', borderwidth='3', font='Helvetica 12 bold', 
+    cursor='hand2', state='disabled', command= lambda: AddProduct(websiteLink_entered.get(), price_entered.get()) )
+add_button.place(relx=0.30, rely=0.65, relwidth=0.165, relheight=0.17)
 
 """ Creates a button that when clicked will call CheckPrices() imported from PriceChecker.py """
 check_button = tk.Button(frame, text='CHECK PRICES', bg='#ffff99', borderwidth='3', font='Helvetica 13 bold', cursor='hand2', command=PC.CheckPrices)
-check_button.place(relx=0.50, rely=0.8, relwidth=0.165, relheight=0.15)
+check_button.place(relx=0.50, rely=0.65, relwidth=0.165, relheight=0.17)
 
 """ Creates a scrollbar and a text output box that is placed on the bottom of the window """
 scrollb = tk.Scrollbar(root)
 scrollb.pack(side=tk.RIGHT, fill=tk.Y)
-output_text = tk.Text(root, height=15, width=110)
+output_text = tk.Text(root, height=20, width=110)
 output_text.pack(side=tk.BOTTOM, fill=tk.Y)
 scrollb.config(command=output_text.yview)
 output_text.config(yscrollcommand=scrollb.set)
