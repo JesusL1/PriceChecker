@@ -12,11 +12,20 @@ class ExcelEditor:
         self.sheet = self.wb[sheet] 
         self.min_row = min_row  # the starting row where data will be written to in the excel page
         self.max_col = max_col  # the starting column where data will be written to in the excel page
-        self.dict_of_links = {}
+        self.dict_of_links = self.GetExcelEntries()
         self.emailUsername = emailUsername
         self.emailPassword = emailPassword
         self.backupWorkbook = 'BACKUP_Workbook.xlsx'
 
+    def GetExcelEntries(self):
+        dict_of_links = {}
+        currentRow = self.min_row  # the row of products starts at min_row
+        for row in self.sheet.iter_rows(min_row=self.min_row, max_col=self.max_col, max_row=self.sheet.max_row, values_only=True):  
+            excel_websiteLink = row[2]
+            dict_of_links.update({excel_websiteLink : currentRow})  # add each item's link in the excel sheet and their respective row to a dictionary(Key,Value)
+            currentRow = currentRow + 1
+        return dict_of_links
+        
     def AddToExcel(self, productName, excelPrice, webLink):
         """ Adds the item to the excel sheet if the item is new, otherwise update's the item's price
         Args:
@@ -25,18 +34,14 @@ class ExcelEditor:
         webLink: the url link of the product's store page/website
         """
         currentDT = datetime.datetime.now()
-        currentRow = self.min_row  # the row of products starts at min_row
-        for row in self.sheet.iter_rows(min_row=self.min_row, max_col=self.max_col, max_row=self.sheet.max_row, values_only=True):  
-            excel_websiteLink = row[2]
-            self.dict_of_links.update({excel_websiteLink : currentRow})  # add each item's link in the excel sheet and their respective row to a dictionary(Key,Value)
-            currentRow = currentRow + 1  
-        
+
         if webLink not in self.dict_of_links:
             print('*NEW ITEM* ADDING ' + productName + ' TO EXCEL SHEET!')
             self.sheet.cell(row=self.sheet.max_row+1, column=1, value=productName)
             self.sheet.cell(row=self.sheet.max_row, column=2, value=excelPrice).alignment = Alignment(horizontal='center') 
             self.sheet.cell(row=self.sheet.max_row, column=3, value=webLink)
             self.sheet.cell(row=self.sheet.max_row, column=4, value=currentDT.strftime("%b %d %Y")).alignment = Alignment(horizontal='center')
+            self.dict_of_links.update({webLink : self.sheet.max_row}) 
         elif webLink in self.dict_of_links:
             print('*ITEM ALREADY EXISTS* UPDATED ' + productName + '!')
             self.UpdateExcel(webLink, excelPrice)
