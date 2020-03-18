@@ -36,7 +36,7 @@ def InsertText(result, color):
         output_text.tag_config('equalPrice', background='yellow')
         output_text.insert(tk.END, result, 'equalPrice')
     elif color == 3:
-        output_text.tag_config('betterPrice', background='#4dff4d', font='Helvetica 11 bold')
+        output_text.tag_config('betterPrice', background='#4dff4d')
         output_text.insert(tk.END, result, 'betterPrice')
     elif color == 4:
         output_text.tag_config('newItem', background='#00cc66', underline=1)
@@ -118,6 +118,7 @@ def PriceValidate(action, index, value_if_allowed, prior_value, text, validation
         else:
             price_entry.bell()
             return False
+
 
 """ Creates a canvas and a frame inside the canvas """
 canvas = tk.Canvas(root, height=HEIGHT, width=WIDTH)
