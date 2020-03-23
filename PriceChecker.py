@@ -175,7 +175,6 @@ def Parse_Reebok(webLink, excelPrice, action):
         currentPrice = match1.text
         currentPrice = re.findall(r"[-+]?\d*\.\d+|\d+", currentPrice) #removes the USD after the price (just want the value)
         currentPrice = float(currentPrice[0])
-        EE.BestPrice(productName, excelPrice, webLink, currentPrice)
     except AttributeError:
         print('ATTRIBUTE ERROR FOUND ON: ', webLink)
     except requests.exceptions.RequestException as e:
